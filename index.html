@@ -1,0 +1,2042 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hania's Health Hub | Hospital Management System</title>
+  <style>
+    :root {
+      --ink: #19323a;
+      --muted: #627b80;
+      --teal: #087b70;
+      --teal-dark: #056259;
+      --teal-light: #0cb3a3;
+      --dark-sidebar: #123c3b;
+      --dark-footer: #0a2726;
+      --pale-mint: #e8f5f1;
+      --mint-accent: #c4f0e2;
+      --border-line: #dbe8e4;
+      --bg-surface: #f4f8f7;
+      --white: #ffffff;
+      --card-shadow: 0 10px 30px rgba(18, 60, 59, 0.05);
+      --card-shadow-hover: 0 18px 40px rgba(18, 60, 59, 0.1);
+      --transition-fast: 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      --transition-smooth: 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-surface);
+      color: var(--ink);
+      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      font-size: 14px;
+      line-height: 1.55;
+      overflow-x: hidden;
+    }
+
+    button, input, select, textarea {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    /* Overall Layout */
+    .layout {
+      min-height: 100vh;
+      display: flex;
+    }
+
+    /* Left Sidebar */
+    .sidebar {
+      width: 255px;
+      background: linear-gradient(180deg, var(--dark-sidebar) 0%, #0d2e2d 100%);
+      color: #d3e9e2;
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      z-index: 10;
+      box-shadow: 4px 0 20px rgba(0, 0, 0, 0.06);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 24px 20px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      transition: background var(--transition-fast);
+    }
+
+    .brandmark {
+      display: grid;
+      place-items: center;
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #c3f2e1 0%, #7ee0be 100%);
+      color: #0b4e45;
+      font-size: 24px;
+      font-weight: 700;
+      box-shadow: 0 4px 12px rgba(137, 232, 195, 0.25);
+      transition: transform var(--transition-fast);
+    }
+
+    .brand:hover .brandmark {
+      transform: scale(1.06) rotate(6deg);
+    }
+
+    .brand-text strong {
+      display: block;
+      color: #ffffff;
+      font-size: 15px;
+      line-height: 1.2;
+    }
+
+    .brand-text small {
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #9eccbf;
+    }
+
+    .nav-label {
+      padding: 22px 20px 8px;
+      color: #8db5a9;
+      letter-spacing: 0.12em;
+      font-size: 10px;
+      font-weight: 700;
+    }
+
+    .nav {
+      padding: 0 12px;
+      display: grid;
+      gap: 4px;
+    }
+
+    .nav button {
+      border: 0;
+      text-align: left;
+      background: transparent;
+      color: #c0ded4;
+      padding: 11px 14px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      position: relative;
+      transition: all var(--transition-fast);
+      overflow: hidden;
+    }
+
+    .nav button::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 15%;
+      bottom: 15%;
+      width: 3.5px;
+      background: #89e8c3;
+      border-radius: 0 4px 4px 0;
+      opacity: 0;
+      transform: scaleY(0.3);
+      transition: all var(--transition-fast);
+    }
+
+    .nav button:hover {
+      background: rgba(255, 255, 255, 0.09);
+      color: #ffffff;
+      padding-left: 17px;
+    }
+
+    .nav button.active {
+      background: rgba(255, 255, 255, 0.15);
+      color: #ffffff;
+      font-weight: 600;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .nav button.active::before {
+      opacity: 1;
+      transform: scaleY(1);
+    }
+
+    .nav-icon {
+      width: 20px;
+      text-align: center;
+      font-size: 16px;
+      transition: transform var(--transition-fast);
+    }
+
+    .nav button:hover .nav-icon {
+      transform: scale(1.2);
+    }
+
+    .side-note {
+      margin: auto 16px 20px;
+      padding: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 12px;
+      font-size: 12px;
+      color: #b7d6cd;
+      background: rgba(255, 255, 255, 0.04);
+      backdrop-filter: blur(4px);
+    }
+
+    .side-note strong {
+      display: block;
+      color: #ffffff;
+      margin-bottom: 4px;
+    }
+
+    /* Main Content Area */
+    .main {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* Header Bar */
+    .topbar {
+      background: var(--white);
+      border-bottom: 1px solid var(--border-line);
+      padding: 16px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      position: sticky;
+      top: 0;
+      z-index: 9;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+    }
+
+    .eyebrow {
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--teal);
+      font-weight: 800;
+    }
+
+    .topbar h1 {
+      font-size: 22px;
+      letter-spacing: -0.03em;
+      margin-top: 2px;
+    }
+
+    .top-actions {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+    }
+
+    .global-search {
+      position: relative;
+    }
+
+    .global-search input {
+      width: 280px;
+      padding: 9px 14px 9px 38px;
+      background: #f7faf9;
+      border: 1px solid var(--border-line);
+      border-radius: 10px;
+      transition: all var(--transition-fast);
+    }
+
+    .global-search input:focus {
+      width: 320px;
+      background: #ffffff;
+      border-color: var(--teal);
+      box-shadow: 0 0 0 4px rgba(8, 123, 112, 0.12);
+    }
+
+    .global-search::before {
+      content: '⌕';
+      position: absolute;
+      left: 14px;
+      top: 6px;
+      font-size: 20px;
+      color: var(--muted);
+      pointer-events: none;
+      transition: color var(--transition-fast);
+    }
+
+    .global-search:focus-within::before {
+      color: var(--teal);
+    }
+
+    .date-chip {
+      color: var(--muted);
+      font-size: 12px;
+      white-space: nowrap;
+      background: var(--pale-mint);
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-weight: 600;
+      border: 1px solid #d3eee5;
+    }
+
+    /* Page Container */
+    .content {
+      width: 100%;
+      max-width: 1400px;
+      padding: 28px 32px;
+      margin: 0 auto;
+      flex: 1;
+    }
+
+    /* Multi-screen Display Control with Enhanced Animations */
+    .screen {
+      display: none;
+      opacity: 0;
+      transform: translateY(12px) scale(0.995);
+      transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .screen.active {
+      display: block;
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+
+    /* Hero Banner with Interactive SVG & Gradient */
+    .hero {
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      gap: 20px;
+      align-items: center;
+      background: linear-gradient(120deg, #dbf4eb 0%, #edf9f5 50%, #e3f5ee 100%);
+      border: 1px solid #ccece0;
+      border-radius: 20px;
+      padding: 32px 36px;
+      margin-bottom: 28px;
+      box-shadow: 0 10px 25px rgba(8, 123, 112, 0.05);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -10%;
+      width: 300px;
+      height: 300px;
+      background: radial-gradient(circle, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0) 70%);
+      pointer-events: none;
+    }
+
+    .hero h2 {
+      font-family: Georgia, 'Times New Roman', serif;
+      font-weight: 500;
+      letter-spacing: -0.03em;
+      font-size: 32px;
+      line-height: 1.2;
+      margin: 8px 0 12px;
+      color: #0d3832;
+    }
+
+    .hero p {
+      color: #4b736b;
+      max-width: 480px;
+      margin-bottom: 22px;
+      font-size: 14px;
+    }
+
+    .hero svg {
+      width: 100%;
+      height: 170px;
+      filter: drop-shadow(0 8px 16px rgba(18, 60, 59, 0.08));
+      transition: transform var(--transition-smooth);
+    }
+
+    .hero:hover svg {
+      transform: translateY(-4px) scale(1.02);
+    }
+
+    /* Reusable Interactive Buttons */
+    .buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .btn {
+      border: 1px solid transparent;
+      border-radius: 10px;
+      padding: 10px 18px;
+      font-weight: 650;
+      font-size: 13px;
+      transition: all var(--transition-fast);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      user-select: none;
+    }
+
+    .btn:active {
+      transform: translateY(1px) scale(0.98);
+    }
+
+    .btn.primary {
+      background: linear-gradient(135deg, var(--teal) 0%, var(--teal-dark) 100%);
+      color: #ffffff;
+      box-shadow: 0 4px 14px rgba(8, 123, 112, 0.25);
+    }
+
+    .btn.primary:hover {
+      background: linear-gradient(135deg, #098e82 0%, #066d63 100%);
+      box-shadow: 0 6px 18px rgba(8, 123, 112, 0.35);
+      transform: translateY(-2px);
+    }
+
+    .btn.secondary {
+      background: var(--white);
+      color: var(--ink);
+      border-color: var(--border-line);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+    }
+
+    .btn.secondary:hover {
+      background: #f4faf8;
+      border-color: #bee3d7;
+      color: var(--teal-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    }
+
+    .btn.danger {
+      background: #fff4f2;
+      color: #a9433b;
+      border-color: #f7ded9;
+    }
+
+    .btn.danger:hover {
+      background: #fde8e5;
+      color: #8f2d25;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(169, 67, 59, 0.15);
+    }
+
+    /* Grid & Animated Stat Cards */
+    .grid {
+      display: grid;
+      gap: 18px;
+    }
+
+    .stats {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      margin-bottom: 28px;
+    }
+
+    .stat, .card {
+      background: var(--white);
+      border: 1px solid var(--border-line);
+      border-radius: 16px;
+      box-shadow: var(--card-shadow);
+      transition: all var(--transition-smooth);
+    }
+
+    .stat {
+      padding: 20px 22px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--teal-light), var(--teal));
+      opacity: 0;
+      transition: opacity var(--transition-fast);
+    }
+
+    .stat:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--card-shadow-hover);
+      border-color: #c7e5dc;
+    }
+
+    .stat:hover::before {
+      opacity: 1;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 650;
+      letter-spacing: 0.02em;
+    }
+
+    .stat-value {
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      margin: 8px 0 2px;
+      color: #0e3732;
+    }
+
+    .stat small {
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .stat-icon {
+      float: right;
+      background: var(--pale-mint);
+      color: var(--teal);
+      border-radius: 10px;
+      padding: 8px 12px;
+      font-size: 18px;
+      transition: all var(--transition-fast);
+    }
+
+    .stat:hover .stat-icon {
+      background: var(--teal);
+      color: #ffffff;
+      transform: scale(1.1) rotate(4deg);
+    }
+
+    .card {
+      padding: 26px;
+      margin-bottom: 24px;
+    }
+
+    .card:hover {
+      border-color: #d2e8e1;
+    }
+
+    .card-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .card-head h2, .card-head h3 {
+      font-size: 17px;
+      letter-spacing: -0.02em;
+      color: #123833;
+    }
+
+    .sub {
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 2px;
+    }
+
+    /* Forms */
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 700;
+      color: #3f5b57;
+      margin-bottom: 6px;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      border: 1px solid #d5e4e0;
+      border-radius: 10px;
+      background: #ffffff;
+      padding: 10px 14px;
+      color: var(--ink);
+      outline: none;
+      transition: all var(--transition-fast);
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--teal);
+      box-shadow: 0 0 0 4px rgba(8, 123, 112, 0.12);
+      background: #ffffff;
+    }
+
+    /* Tables & Smooth Row Interactions */
+    .table-wrap {
+      overflow-x: auto;
+      border-radius: 12px;
+      border: 1px solid var(--border-line);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      background: #ffffff;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 13px 14px;
+      border-bottom: 1px solid #edf4f2;
+      white-space: normal;
+      overflow-wrap: break-word;
+      vertical-align: middle;
+    }
+
+    th {
+      font-size: 11px;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: #61827b;
+      background: #f7faf9;
+      font-weight: 700;
+      border-bottom: 1px solid #e2eee9;
+    }
+
+    tbody tr {
+      transition: background-color var(--transition-fast), transform var(--transition-fast);
+    }
+
+    tbody tr:hover {
+      background-color: #f2f9f6;
+    }
+
+    tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    tfoot {
+      font-weight: 750;
+      background: #eef7f3;
+      border-top: 2px solid #d4eae1;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 10px;
+      border-radius: 99px;
+      font-size: 11px;
+      font-weight: 700;
+      background: #eaf6f2;
+      color: #1e7365;
+      border: 1px solid #d2edd2;
+    }
+
+    .badge.pending {
+      background: #fff8e6;
+      color: #9c6c00;
+      border-color: #f7e4b5;
+      animation: pulseAlert 2s infinite ease-in-out;
+    }
+
+    @keyframes pulseAlert {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.75; }
+    }
+
+    .empty {
+      text-align: center;
+      color: var(--muted);
+      padding: 32px;
+      font-style: italic;
+    }
+
+    .section-heading {
+      margin-bottom: 24px;
+    }
+
+    .section-heading h2 {
+      font-family: Georgia, 'Times New Roman', serif;
+      font-size: 28px;
+      font-weight: 500;
+      margin-bottom: 4px;
+      color: #0e3732;
+    }
+
+    .section-heading p {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    /* AI Chat Screen */
+    .chat {
+      display: flex;
+      flex-direction: column;
+      height: 580px;
+      padding: 0;
+      overflow: hidden;
+      border-radius: 18px;
+    }
+
+    .chat-head {
+      padding: 18px 24px;
+      background: linear-gradient(90deg, #e7f6f1 0%, #f2faf7 100%);
+      border-bottom: 1px solid var(--border-line);
+    }
+
+    .messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px;
+      background: #f9fcfa;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      scroll-behavior: smooth;
+    }
+
+    .bubble {
+      max-width: 80%;
+      padding: 14px 18px;
+      border-radius: 16px;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      line-height: 1.55;
+      font-size: 13.5px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+      animation: popIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes popIn {
+      from { opacity: 0; transform: translateY(8px) scale(0.98); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .bubble.user {
+      align-self: flex-end;
+      background: linear-gradient(135deg, var(--teal) 0%, var(--teal-dark) 100%);
+      color: #ffffff;
+      border-bottom-right-radius: 4px;
+    }
+
+    .bubble.assistant {
+      align-self: flex-start;
+      background: #ffffff;
+      border: 1px solid var(--border-line);
+      border-bottom-left-radius: 4px;
+      color: var(--ink);
+    }
+
+    .quick {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 14px 20px;
+      border-top: 1px solid var(--border-line);
+      background: #ffffff;
+    }
+
+    .quick button {
+      background: #f0f7f4;
+      border: 1px solid #d5e8e2;
+      border-radius: 30px;
+      color: #2b5f54;
+      padding: 7px 14px;
+      font-size: 12px;
+      font-weight: 600;
+      transition: all var(--transition-fast);
+    }
+
+    .quick button:hover {
+      background: var(--teal);
+      color: #ffffff;
+      border-color: var(--teal);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 10px rgba(8, 123, 112, 0.2);
+    }
+
+    .chat-form {
+      display: flex;
+      gap: 10px;
+      padding: 0 20px 20px;
+      background: #ffffff;
+    }
+
+    /* Vibrant Rich Footer */
+    .footer {
+      background: linear-gradient(135deg, #0a2726 0%, #123c3b 100%);
+      color: #b7d6cd;
+      padding: 40px 32px 24px;
+      margin-top: auto;
+      border-top: 3px solid var(--teal);
+    }
+
+    .footer-grid {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr;
+      gap: 36px;
+      margin-bottom: 30px;
+    }
+
+    .footer-brand {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .footer-brand-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #ffffff;
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .footer-brand-title .icon {
+      background: var(--teal-light);
+      color: #0b3d36;
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      font-size: 18px;
+    }
+
+    .footer-brand p {
+      font-size: 13px;
+      line-height: 1.6;
+      color: #92b8ad;
+      max-width: 420px;
+    }
+
+    .footer-status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(137, 232, 195, 0.1);
+      border: 1px solid rgba(137, 232, 195, 0.25);
+      color: #7ee0be;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      width: fit-content;
+      margin-top: 4px;
+    }
+
+    .footer-status-dot {
+      width: 8px;
+      height: 8px;
+      background: #4ade80;
+      border-radius: 50%;
+      box-shadow: 0 0 8px #4ade80;
+    }
+
+    .footer-col h4 {
+      color: #ffffff;
+      font-size: 13px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+    }
+
+    .footer-links {
+      list-style: none;
+      display: grid;
+      gap: 8px;
+    }
+
+    .footer-links button {
+      background: none;
+      border: none;
+      color: #92b8ad;
+      text-align: left;
+      font-size: 13px;
+      transition: color var(--transition-fast), transform var(--transition-fast);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .footer-links button:hover {
+      color: #ffffff;
+      transform: translateX(4px);
+    }
+
+    .footer-bottom {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding-top: 20px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      color: #759c91;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .notice {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 6px;
+    }
+
+    .status {
+      margin-top: 12px;
+      font-size: 13px;
+      color: var(--teal);
+      font-weight: 600;
+    }
+
+    /* Responsive Queries */
+    @media (max-width: 1024px) {
+      .stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .hero {
+        grid-template-columns: 1fr;
+      }
+      .hero svg {
+        display: none;
+      }
+      .footer-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .layout {
+        flex-direction: column;
+      }
+      .sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+      }
+      .brand {
+        padding: 16px;
+      }
+      .nav-label, .side-note {
+        display: none;
+      }
+      .nav {
+        display: flex;
+        overflow-x: auto;
+        padding: 8px 12px;
+      }
+      .nav button {
+        white-space: nowrap;
+      }
+      .topbar {
+        padding: 16px;
+        flex-direction: column;
+        align-items: flex-start;
+        position: relative;
+      }
+      .top-actions {
+        width: 100%;
+      }
+      .global-search {
+        flex: 1;
+      }
+      .global-search input, .global-search input:focus {
+        width: 100%;
+      }
+      .content {
+        padding: 16px;
+      }
+      .stats {
+        grid-template-columns: 1fr;
+      }
+      .footer {
+        padding: 24px 16px 16px;
+      }
+      .footer-grid {
+        grid-template-columns: 1fr;
+        gap: 24px;
+      }
+      .footer-bottom {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+
+    /* Print Styles */
+    @media print {
+      body {
+        background: #ffffff;
+      }
+      .sidebar, .topbar, .footer, .report-controls, .no-print {
+        display: none !important;
+      }
+      .screen {
+        display: none !important;
+      }
+      #screen-reports {
+        display: block !important;
+        opacity: 1 !important;
+        transform: none !important;
+      }
+      .card {
+        border: 0;
+        box-shadow: none;
+        padding: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="brand">
+        <span class="brandmark">✳</span>
+        <div class="brand-text">
+          <strong>Hania's Health Hub</strong>
+          <small>Hospital Management</small>
+        </div>
+      </div>
+
+      <div class="nav-label">MAIN WORKSPACE</div>
+      <nav class="nav" aria-label="Main Navigation">
+        <button data-page="dashboard" class="active"><span class="nav-icon">▦</span>Dashboard</button>
+        <button data-page="patients"><span class="nav-icon">♙</span>Patients</button>
+        <button data-page="visits"><span class="nav-icon">✚</span>Doctor Visits</button>
+        <button data-page="lab"><span class="nav-icon">◉</span>Laboratory</button>
+        <button data-page="billing"><span class="nav-icon">▤</span>Billing</button>
+        <button data-page="reports"><span class="nav-icon">▥</span>Reports</button>
+        <button data-page="ai-chat"><span class="nav-icon">✦</span>AI Assistant</button>
+        <button data-page="settings"><span class="nav-icon">⚙</span>Settings</button>
+      </nav>
+
+      <div class="side-note">
+        <strong>Care, Organized.</strong>
+        All clinical data is safely kept in your browser storage.
+      </div>
+    </aside>
+
+    <!-- Main Workspace -->
+    <div class="main">
+      <header class="topbar">
+        <div>
+          <div class="eyebrow">Hania's Health Hub · System</div>
+          <h1 id="page-title">Dashboard</h1>
+        </div>
+        <div class="top-actions">
+          <div class="global-search">
+            <input id="global-search" aria-label="Search patients" placeholder="Search patients by name, ID or phone..." autocomplete="off">
+          </div>
+          <div class="date-chip" id="header-date"></div>
+        </div>
+      </header>
+
+      <div class="content">
+        <!-- 1. DASHBOARD -->
+        <section class="screen active" id="screen-dashboard">
+          <div class="hero">
+            <div>
+              <div class="eyebrow">A Clearer View of Care</div>
+              <h2>Welcome to Hania's<br>Health Hub</h2>
+              <p>Manage daily patient check-ins, medical consultations, diagnostic lab orders, and financial summaries in one calm workspace.</p>
+              <div class="buttons">
+                <button class="btn primary" data-go="patients">+ Register Patient</button>
+                <button class="btn secondary" id="load-sample">Load Sample Data (50 Patients)</button>
+              </div>
+            </div>
+            <!-- Clean Medical Illustration SVG -->
+            <svg viewBox="0 0 350 180" role="img" aria-label="Illustration of a clean modern clinic">
+              <circle cx="190" cy="88" r="78" fill="#ccebdd"/>
+              <circle cx="270" cy="38" r="14" fill="#b4e4d0"/>
+              <rect x="110" y="58" width="150" height="102" rx="12" fill="#ffffff"/>
+              <rect x="100" y="50" width="170" height="16" rx="8" fill="#1b8574"/>
+              <rect x="170" y="110" width="30" height="50" rx="4" fill="#71c4ad"/>
+              <rect x="126" y="80" width="26" height="22" rx="4" fill="#d6f2e8"/>
+              <rect x="218" y="80" width="26" height="22" rx="4" fill="#d6f2e8"/>
+              <rect x="177" y="72" width="16" height="32" rx="3" fill="#3aa58c"/>
+              <rect x="169" y="80" width="32" height="16" rx="3" fill="#3aa58c"/>
+              <path d="M80 158c-3-26-13-35-28-39 4 21 11 34 28 39zm0 0c2-24 12-37 28-41-4 22-11 35-28 41z" fill="#7fcbb0"/>
+              <path d="M283 157c3-25 13-37 28-40-3 21-11 34-28 40zm0 0c-2-25-12-36-27-40 3 21 10 34 27 40z" fill="#9cd6bf"/>
+              <path d="M30 160h295" stroke="#7cbfa9" stroke-width="3" stroke-linecap="round"/>
+            </svg>
+          </div>
+
+          <div class="grid stats" id="stats"></div>
+
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <h2>Recent Consultations</h2>
+                <p class="sub">Latest doctor visits recorded in the system.</p>
+              </div>
+              <button class="btn secondary" data-go="visits">View All Consultations →</button>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Patient</th>
+                    <th>Doctor</th>
+                    <th>Reason / Problem</th>
+                    <th>Visit Fee</th>
+                  </tr>
+                </thead>
+                <tbody id="recent-visits"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- 2. PATIENTS SCREEN -->
+        <section class="screen" id="screen-patients">
+          <div class="section-heading">
+            <h2>Patient Registration</h2>
+            <p>Enroll new patients with auto-generated IDs and search the registry.</p>
+          </div>
+
+          <div class="card">
+            <div class="card-head">
+              <h2>New Patient Admission</h2>
+              <span class="badge">Auto-ID Assignment</span>
+            </div>
+            <form id="patient-form">
+              <div class="form-grid">
+                <div>
+                  <label for="pat-id">Patient ID</label>
+                  <input id="pat-id" readonly>
+                </div>
+                <div>
+                  <label for="pat-name">Full Name</label>
+                  <input id="pat-name" placeholder="e.g. Amina Begum" required>
+                </div>
+                <div>
+                  <label for="pat-age">Age</label>
+                  <input id="pat-age" type="number" min="0" max="120" placeholder="e.g. 34" required>
+                </div>
+                <div>
+                  <label for="pat-sex">Sex</label>
+                  <select id="pat-sex">
+                    <option>Female</option>
+                    <option>Male</option>
+                    <option>Other</option>
+                  </select>
+                </div>
+                <div>
+                  <label for="pat-phone">Phone Number</label>
+                  <input id="pat-phone" type="tel" placeholder="e.g. 01712-345678" required>
+                </div>
+                <div>
+                  <label for="pat-address">Address</label>
+                  <input id="pat-address" placeholder="e.g. Dhanmondi, Dhaka" required>
+                </div>
+              </div>
+              <button type="submit" class="btn primary">Save Patient Record</button>
+            </form>
+          </div>
+
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <h2>Patient Directory</h2>
+                <p class="sub">Filter by patient name, phone number, or ID.</p>
+              </div>
+              <div style="min-width: 240px;">
+                <input id="patient-search" placeholder="Type name, phone or ID...">
+              </div>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Patient ID</th>
+                    <th>Reg. Date</th>
+                    <th>Name</th>
+                    <th>Age / Sex</th>
+                    <th>Phone</th>
+                    <th>Address</th>
+                  </tr>
+                </thead>
+                <tbody id="patient-rows"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- 3. DOCTOR VISITS SCREEN -->
+        <section class="screen" id="screen-visits">
+          <div class="section-heading">
+            <h2>Doctor Visits & Prescriptions</h2>
+            <p>Assign appointments, enter clinical notes, and bill consultation fees.</p>
+          </div>
+
+          <div class="card">
+            <div class="card-head">
+              <h2>Record Consultation</h2>
+            </div>
+            <form id="visit-form">
+              <div class="form-grid">
+                <div>
+                  <label for="visit-date">Date</label>
+                  <input id="visit-date" type="date" required>
+                </div>
+                <div>
+                  <label for="visit-patient">Select Patient</label>
+                  <select id="visit-patient" required></select>
+                </div>
+                <div>
+                  <label for="visit-doctor">Select Doctor</label>
+                  <select id="visit-doctor" required></select>
+                </div>
+                <div>
+                  <label for="visit-fee">Visit Fee (Tk)</label>
+                  <input id="visit-fee" type="number" min="0" step="0.01" required>
+                </div>
+                <div>
+                  <label for="visit-problem">Chief Complaint / Problem</label>
+                  <input id="visit-problem" placeholder="e.g. Fever, persistent cough" required>
+                </div>
+                <div>
+                  <label for="visit-medicines">Prescribed Medicines</label>
+                  <input id="visit-medicines" placeholder="e.g. Paracetamol 500mg, Azithromycin">
+                </div>
+              </div>
+              <button type="submit" class="btn primary">Save Consultation</button>
+            </form>
+          </div>
+
+          <div class="card">
+            <div class="card-head">
+              <h2>Consultation Records</h2>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Patient</th>
+                    <th>Doctor</th>
+                    <th>Problem</th>
+                    <th>Prescription</th>
+                    <th>Fee</th>
+                  </tr>
+                </thead>
+                <tbody id="visit-rows"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- 4. LABORATORY SCREEN -->
+        <section class="screen" id="screen-lab">
+          <div class="section-heading">
+            <h2>Diagnostic Laboratory</h2>
+            <p>Order tests from price list, track statuses, and input test results.</p>
+          </div>
+
+          <div class="card">
+            <div class="card-head">
+              <h2>Order Diagnostic Test</h2>
+            </div>
+            <form id="lab-form">
+              <div class="form-grid">
+                <div>
+                  <label for="lab-date">Order Date</label>
+                  <input id="lab-date" type="date" required>
+                </div>
+                <div>
+                  <label for="lab-patient">Select Patient</label>
+                  <select id="lab-patient" required></select>
+                </div>
+                <div>
+                  <label for="lab-test">Select Test</label>
+                  <select id="lab-test" required></select>
+                </div>
+                <div>
+                  <label for="lab-cost">Test Cost (Tk)</label>
+                  <input id="lab-cost" type="number" readonly required>
+                </div>
+              </div>
+              <button type="submit" class="btn primary">Place Lab Order</button>
+            </form>
+          </div>
+
+          <div class="card">
+            <div class="card-head">
+              <h2>Laboratory Orders & Results</h2>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Order Date</th>
+                    <th>Patient</th>
+                    <th>Test Name</th>
+                    <th>Cost</th>
+                    <th>Status</th>
+                    <th>Result / Action</th>
+                  </tr>
+                </thead>
+                <tbody id="lab-rows"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- 5. BILLING SCREEN -->
+        <section class="screen" id="screen-billing">
+          <div class="section-heading">
+            <h2>Patient Billing & Invoices</h2>
+            <p>Generate financial statements and settle patient dues.</p>
+          </div>
+
+          <div class="card">
+            <div class="card-head">
+              <h2>Account Statement & Settlement</h2>
+            </div>
+            <div class="form-grid" style="max-width: 400px; margin-bottom: 20px;">
+              <div>
+                <label for="bill-patient">Select Patient for Invoice</label>
+                <select id="bill-patient"></select>
+              </div>
+            </div>
+            <div id="bill-statement"></div>
+          </div>
+        </section>
+
+        <!-- 6. REPORTS SCREEN -->
+        <section class="screen" id="screen-reports">
+          <div class="section-heading">
+            <h2>Hospital Reports & Summary</h2>
+            <p>Comprehensive overview of clinical activity and financial turnover.</p>
+          </div>
+
+          <div class="card">
+            <div class="card-head">
+              <h2>Executive Summary</h2>
+              <button class="btn secondary no-print" onclick="window.print()">Print Report</button>
+            </div>
+            <div id="report-content"></div>
+          </div>
+        </section>
+
+        <!-- 7. AI ASSISTANT SCREEN -->
+        <section class="screen" id="screen-ai-chat">
+          <div class="section-heading">
+            <h2>AI Assistant</h2>
+            <p>Clinical advisor and hospital workflow support helper.</p>
+          </div>
+
+          <div class="card chat">
+            <div class="chat-head">
+              <strong>Hania's Clinical Companion</strong>
+              <div class="sub">Ask questions about drug dosages, symptom protocols, or hospital analytics.</div>
+            </div>
+            <div class="messages" id="chat-messages">
+              <div class="bubble assistant">Hello! I am your AI clinical assistant. How can I help you manage patient care or review hospital protocols today?</div>
+            </div>
+            <div class="quick">
+              <button type="button" data-prompt="Summarize today's hospital patient load and revenues.">Summarize today's load</button>
+              <button type="button" data-prompt="What are standard adult dosages for Paracetamol and Azithromycin?">Drug dosages</button>
+              <button type="button" data-prompt="Give me safety guidelines for handling lab biohazard samples.">Lab safety guidelines</button>
+            </div>
+            <form class="chat-form" id="chat-form">
+              <input id="chat-input" placeholder="Type a message or clinical question..." autocomplete="off" required>
+              <button type="submit" class="btn primary">Send</button>
+            </form>
+          </div>
+        </section>
+
+       <!-- 8. SETTINGS SCREEN -->
+        <section class="screen" id="screen-settings">
+          <div class="section-heading">
+            <h2>System Settings</h2>
+            <p>Manage application data, API credentials, and administrative options.</p>
+          </div>
+
+          <!-- Supervisor API Key Configuration Card -->
+          <div class="card">
+            <div class="card-head">
+              <h2>Supervisor Key Configuration</h2>
+            </div>
+            <p class="sub" style="margin-bottom: 16px;">Enter a valid ChatterMate API key starting with <code>cm_live_</code> to update the active session key.</p>
+            <form id="key-form" style="display: flex; gap: 12px; align-items: flex-end; max-width: 500px;">
+              <div style="flex: 1;">
+                <label for="setting-api-key">ChatterMate API Key</label>
+                <input id="setting-api-key" type="password" placeholder="cm_live_..." required>
+              </div>
+              <button type="submit" class="btn primary">Save Key</button>
+              <button type="button" id="test-key-btn" class="btn secondary">Test Connection</button>
+            </form>
+            <div class="status" id="key-status" style="margin-top: 12px;"></div>
+          </div>
+
+          <!-- Data Management Card -->
+          <div class="card">
+            <div class="card-head">
+              <h2>Data Management</h2>
+            </div>
+            <p class="sub" style="margin-bottom: 16px;">All records are saved securely inside your browser's local storage.</p>
+            <div class="buttons">
+              <button class="btn secondary" id="export-data">Export Data Backup (JSON)</button>
+              <button class="btn danger" id="reset-data">Clear All Records & Reset</button>
+            </div>
+            <div class="status" id="settings-status" style="margin-top: 12px;"></div>
+          </div>
+        </section>
+
+      <!-- Footer -->
+      <footer class="footer">
+        <div class="footer-grid">
+          <div class="footer-brand">
+            <div class="footer-brand-title">
+              <span class="icon">✳</span> Hania's Health Hub
+            </div>
+            <p>Empowering clinics with seamless hospital management workflows, patient tracking, laboratory diagnostics, and secure local data storage.</p>
+            <div class="footer-status-pill">
+              <span class="footer-status-dot"></span> System Active · Local Storage Connected
+            </div>
+          </div>
+          <div class="footer-col">
+            <h4>Quick Navigation</h4>
+            <ul class="footer-links">
+              <li><button data-page="dashboard">Dashboard Overview</button></li>
+              <li><button data-page="patients">Patient Registry</button></li>
+              <li><button data-page="visits">Doctor Consultations</button></li>
+              <li><button data-page="lab">Diagnostic Laboratory</button></li>
+            </ul>
+          </div>
+          <div class="footer-col">
+            <h4>Administration</h4>
+            <ul class="footer-links">
+              <li><button data-page="billing">Billing & Invoices</button></li>
+              <li><button data-page="reports">Reports & Analytics</button></li>
+              <li><button data-page="ai-chat">AI Assistant</button></li>
+              <li><button data-page="settings">System Settings</button></li>
+            </ul>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <span>&copy; 2026 Hania's Health Hub. All rights reserved.</span>
+          <span>Designed with care for modern healthcare professionals.</span>
+        </div>
+      </footer>
+    </div>
+  </div>
+
+  <script>
+    // Application State
+    const STORAGE_KEY = 'hania_health_hub_data_v1';
+    
+    let db = {
+      patients: [],
+      visits: [],
+      labs: [],
+      doctors: [
+        { id: 'DOC01', name: 'Dr. Farhana Ahmed', specialty: 'General Medicine' },
+        { id: 'DOC02', name: 'Dr. Tanvir Hossain', specialty: 'Cardiology' },
+        { id: 'DOC03', name: 'Dr. Nusrat Jahan', specialty: 'Pediatrics' },
+        { id: 'DOC04', name: 'Dr. Rahman Khan', specialty: 'Orthopedics' }
+      ],
+      labTests: [
+        { name: 'Complete Blood Count (CBC)', cost: 500 },
+        { name: 'Blood Sugar (Fasting)', cost: 300 },
+        { name: 'Lipid Profile', cost: 1200 },
+        { name: 'Liver Function Test (LFT)', cost: 1500 },
+        { name: 'X-Ray Chest', cost: 800 },
+        { name: 'Urinalysis', cost: 250 }
+      ]
+    };
+
+    function saveDB() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
+    }
+
+    function loadDB() {
+      const data = localStorage.getItem(STORAGE_KEY);
+      if (data) {
+        try {
+          const parsed = JSON.parse(data);
+          db.patients = parsed.patients || [];
+          db.visits = parsed.visits || [];
+          db.labs = parsed.labs || [];
+        } catch(e) { console.error(e); }
+      }
+    }
+
+    // Initialize Date and IDs
+    function initApp() {
+      loadDB();
+      const now = new Date();
+      document.getElementById('header-date').textContent = now.toLocaleDateString('en-US', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' });
+      
+      const todayStr = now.toISOString().split('T')[0];
+      if(document.getElementById('visit-date')) document.getElementById('visit-date').value = todayStr;
+      if(document.getElementById('lab-date')) document.getElementById('lab-date').value = todayStr;
+
+      generatePatientID();
+      populateDropdowns();
+      renderAll();
+    }
+
+    function generatePatientID() {
+      const nextNum = db.patients.length + 1;
+      const id = 'PID-' + String(nextNum).padStart(4, '0');
+      const el = document.getElementById('pat-id');
+      if(el) el.value = id;
+    }
+
+    function populateDropdowns() {
+      // Patient selects
+      const pOptions = db.patients.map(p => `<option value="${p.id}">${p.id} - ${p.name}</option>`).join('');
+      ['visit-patient', 'lab-patient', 'bill-patient'].forEach(id => {
+        const el = document.getElementById(id);
+        if(el) el.innerHTML = pOptions || '<option value="">No patients registered</option>';
+      });
+
+      // Doctor select
+      const dEl = document.getElementById('visit-doctor');
+      if(dEl) {
+        dEl.innerHTML = db.doctors.map(d => `<option value="${d.name}">${d.name} (${d.specialty})</option>`).join('');
+      }
+
+      // Lab test select
+      const lEl = document.getElementById('lab-test');
+      if(lEl) {
+        lEl.innerHTML = db.labTests.map(t => `<option value="${t.name}" data-cost="${t.cost}">${t.name} - Tk ${t.cost}</option>`).join('');
+        updateLabCost();
+      }
+    }
+
+    function updateLabCost() {
+      const lEl = document.getElementById('lab-test');
+      const costEl = document.getElementById('lab-cost');
+      if(lEl && costEl && lEl.selectedOptions.length > 0) {
+        costEl.value = lEl.selectedOptions[0].getAttribute('data-cost');
+      }
+    }
+
+    document.getElementById('lab-test')?.addEventListener('change', updateLabCost);
+
+    // Navigation Handler
+    document.querySelectorAll('.nav button, [data-go], .footer-links button').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const page = btn.getAttribute('data-page') || btn.getAttribute('data-go');
+        if(!page) return;
+
+        document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active'));
+        const navBtn = document.querySelector(`.nav button[data-page="${page}"]`);
+        if(navBtn) navBtn.classList.add('active');
+
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        const targetScreen = document.getElementById('screen-' + page);
+        if(targetScreen) targetScreen.classList.add('active');
+
+        const titleEl = document.getElementById('page-title');
+        if(titleEl) {
+          titleEl.textContent = page.charAt(0).toUpperCase() + page.slice(1).replace('-', ' ');
+        }
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    });
+
+    // Form Submissions
+    document.getElementById('patient-form')?.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const newPatient = {
+        id: document.getElementById('pat-id').value,
+        regDate: new Date().toISOString().split('T')[0],
+        name: document.getElementById('pat-name').value,
+        age: document.getElementById('pat-age').value,
+        sex: document.getElementById('pat-sex').value,
+        phone: document.getElementById('pat-phone').value,
+        address: document.getElementById('pat-address').value
+      };
+      db.patients.push(newPatient);
+      saveDB();
+      e.target.reset();
+      generatePatientID();
+      populateDropdowns();
+      renderAll();
+      alert('Patient registered successfully!');
+    });
+
+    document.getElementById('visit-form')?.addEventListener('submit', (e) => {
+      e.preventDefault();
+      if(db.patients.length === 0) { alert('Please register a patient first.'); return; }
+      const newVisit = {
+        date: document.getElementById('visit-date').value,
+        patientId: document.getElementById('visit-patient').value,
+        doctor: document.getElementById('visit-doctor').value,
+        fee: parseFloat(document.getElementById('visit-fee').value) || 0,
+        problem: document.getElementById('visit-problem').value,
+        medicines: document.getElementById('visit-medicines').value
+      };
+      db.visits.push(newVisit);
+      saveDB();
+      e.target.reset();
+      document.getElementById('visit-date').value = new Date().toISOString().split('T')[0];
+      renderAll();
+      alert('Consultation recorded successfully!');
+    });
+
+    document.getElementById('lab-form')?.addEventListener('submit', (e) => {
+      e.preventDefault();
+      if(db.patients.length === 0) { alert('Please register a patient first.'); return; }
+      const testOpt = document.getElementById('lab-test').selectedOptions[0];
+      const newLab = {
+        id: 'LAB-' + Math.floor(1000 + Math.random() * 9000),
+        date: document.getElementById('lab-date').value,
+        patientId: document.getElementById('lab-patient').value,
+        testName: testOpt.value,
+        cost: parseFloat(testOpt.getAttribute('data-cost')),
+        status: 'Pending',
+        result: '-'
+      };
+      db.labs.push(newLab);
+      saveDB();
+      e.target.reset();
+      document.getElementById('lab-date').value = new Date().toISOString().split('T')[0];
+      updateLabCost();
+      renderAll();
+      alert('Lab test ordered successfully!');
+    });
+
+    // Render Views
+    function renderAll() {
+      renderStats();
+      renderRecentVisits();
+      renderPatients();
+      renderVisits();
+      renderLabs();
+      renderBilling();
+      renderReports();
+    }
+
+    function renderStats() {
+      const statsEl = document.getElementById('stats');
+      if(!statsEl) return;
+      const totalVisits = db.visits.length;
+      const totalRevenue = db.visits.reduce((acc, v) => acc + v.fee, 0) + db.labs.reduce((acc, l) => acc + l.cost, 0);
+      const pendingLabs = db.labs.filter(l => l.status === 'Pending').length;
+
+      statsEl.innerHTML = `
+        <div class="stat">
+          <span class="stat-icon">♙</span>
+          <div class="stat-label">Registered Patients</div>
+          <div class="stat-value">${db.patients.length}</div>
+          <small>Active registry count</small>
+        </div>
+        <div class="stat">
+          <span class="stat-icon">✚</span>
+          <div class="stat-label">Doctor Consultations</div>
+          <div class="stat-value">${totalVisits}</div>
+          <small>Recorded clinical visits</small>
+        </div>
+        <div class="stat">
+          <span class="stat-icon">◉</span>
+          <div class="stat-label">Pending Lab Tests</div>
+          <div class="stat-value">${pendingLabs}</div>
+          <small>Awaiting diagnostics</small>
+        </div>
+        <div class="stat">
+          <span class="stat-icon">▤</span>
+          <div class="stat-label">Total Revenue</div>
+          <div class="stat-value">Tk ${totalRevenue.toLocaleString()}</div>
+          <small>Visits & laboratory fees</small>
+        </div>
+      `;
+    }
+
+    function renderRecentVisits() {
+      const tbody = document.getElementById('recent-visits');
+      if(!tbody) return;
+      const recent = [...db.visits].reverse().slice(0, 5);
+      if(recent.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="empty">No consultations recorded yet.</td></tr>`;
+        return;
+      }
+      tbody.innerHTML = recent.map(v => {
+        const p = db.patients.find(pt => pt.id === v.patientId);
+        return `
+          <tr>
+            <td>${v.date}</td>
+            <td><strong>${p ? p.name : v.patientId}</strong></td>
+            <td>${v.doctor}</td>
+            <td>${v.problem}</td>
+            <td>Tk ${v.fee.toLocaleString()}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function renderPatients() {
+      const tbody = document.getElementById('patient-rows');
+      if(!tbody) return;
+      const query = (document.getElementById('patient-search')?.value || '').toLowerCase();
+      const filtered = db.patients.filter(p => p.name.toLowerCase().includes(query) || p.id.toLowerCase().includes(query) || p.phone.includes(query));
+      
+      if(filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="empty">No matching patients found.</td></tr>`;
+        return;
+      }
+      tbody.innerHTML = filtered.map(p => `
+        <tr>
+          <td><strong>${p.id}</strong></td>
+          <td>${p.regDate}</td>
+          <td>${p.name}</td>
+          <td>${p.age} / ${p.sex}</td>
+          <td>${p.phone}</td>
+          <td>${p.address}</td>
+        </tr>
+      `).join('');
+    }
+
+    document.getElementById('patient-search')?.addEventListener('input', renderPatients);
+    document.getElementById('global-search')?.addEventListener('input', (e) => {
+      const val = e.target.value;
+      const searchInput = document.getElementById('patient-search');
+      if(searchInput) searchInput.value = val;
+      if(val.trim() !== '') {
+        document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active'));
+        document.querySelector('.nav button[data-page="patients"]').classList.add('active');
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById('screen-patients').classList.add('active');
+        document.getElementById('page-title').textContent = 'Patients';
+      }
+      renderPatients();
+    });
+
+    function renderVisits() {
+      const tbody = document.getElementById('visit-rows');
+      if(!tbody) return;
+      if(db.visits.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="empty">No consultation records found.</td></tr>`;
+        return;
+      }
+      tbody.innerHTML = [...db.visits].reverse().map(v => {
+        const p = db.patients.find(pt => pt.id === v.patientId);
+        return `
+          <tr>
+            <td>${v.date}</td>
+            <td>${p ? p.name : v.patientId}</td>
+            <td>${v.doctor}</td>
+            <td>${v.problem}</td>
+            <td>${v.medicines || '-'}</td>
+            <td>Tk ${v.fee.toLocaleString()}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function renderLabs() {
+      const tbody = document.getElementById('lab-rows');
+      if(!tbody) return;
+      if(db.labs.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="empty">No diagnostic orders placed yet.</td></tr>`;
+        return;
+      }
+      tbody.innerHTML = [...db.labs].reverse().map(l => {
+        const p = db.patients.find(pt => pt.id === l.patientId);
+        const isPending = l.status === 'Pending';
+        return `
+          <tr>
+            <td>${l.date}</td>
+            <td>${p ? p.name : l.patientId}</td>
+            <td><strong>${l.testName}</strong></td>
+            <td>Tk ${l.cost.toLocaleString()}</td>
+            <td><span class="badge ${isPending ? 'pending' : ''}">${l.status}</span></td>
+            <td>
+              ${isPending ? `<button class="btn secondary" onclick="completeLab('${l.id}')">Enter Result</button>` : `<span>${l.result}</span>`}
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    window.completeLab = function(id) {
+      const res = prompt('Enter lab test results / findings:');
+      if(res !== null) {
+        const lab = db.labs.find(l => l.id === id);
+        if(lab) {
+          lab.status = 'Completed';
+          lab.result = res;
+          saveDB();
+          renderAll();
+        }
+      }
+    };
+
+    function renderBilling() {
+      const container = document.getElementById('bill-statement');
+      const select = document.getElementById('bill-patient');
+      if(!container || !select) return;
+
+      const selectedId = select.value;
+      if(!selectedId) {
+        container.innerHTML = `<div class="empty">Please select a patient to view their billing statement.</div>`;
+        return;
+      }
+
+      const p = db.patients.find(pt => pt.id === selectedId);
+      const pVisits = db.visits.filter(v => v.patientId === selectedId);
+      const pLabs = db.labs.filter(l => l.patientId === selectedId);
+
+      const totalVisitsFee = pVisits.reduce((acc, v) => acc + v.fee, 0);
+      const totalLabsFee = pLabs.reduce((acc, l) => acc + l.cost, 0);
+      const grandTotal = totalVisitsFee + totalLabsFee;
+
+      container.innerHTML = `
+        <div style="background: var(--pale-mint); padding: 16px; border-radius: 12px; margin-bottom: 20px;">
+          <strong>Patient:</strong> ${p.name} (${p.id}) &nbsp;|&nbsp; <strong>Phone:</strong> ${p.phone}
+        </div>
+        <h3 style="margin-bottom: 10px;">Consultation Charges</h3>
+        <div class="table-wrap" style="margin-bottom: 20px;">
+          <table>
+            <thead><tr><th>Date</th><th>Doctor</th><th>Problem</th><th>Fee</th></tr></thead>
+            <tbody>
+              ${pVisits.length === 0 ? `<tr><td colspan="4" class="empty">No consultation fees</td></tr>` : pVisits.map(v => `<tr><td>${v.date}</td><td>${v.doctor}</td><td>${v.problem}</td><td>Tk ${v.fee.toLocaleString()}</td></tr>`).join('')}
+            </tbody>
+          </table>
+        </div>
+        <h3 style="margin-bottom: 10px;">Laboratory Charges</h3>
+        <div class="table-wrap" style="margin-bottom: 20px;">
+          <table>
+            <thead><tr><th>Date</th><th>Test Name</th><th>Status</th><th>Cost</th></tr></thead>
+            <tbody>
+              ${pLabs.length === 0 ? `<tr><td colspan="4" class="empty">No laboratory charges</td></tr>` : pLabs.map(l => `<tr><td>${l.date}</td><td>${l.testName}</td><td>${l.status}</td><td>Tk ${l.cost.toLocaleString()}</td></tr>`).join('')}
+            </tbody>
+          </table>
+        </div>
+        <div style="text-align: right; font-size: 18px; font-weight: 700; color: var(--teal-dark);">
+          Total Balance Due: Tk ${grandTotal.toLocaleString()}
+        </div>
+      `;
+    }
+
+    document.getElementById('bill-patient')?.addEventListener('change', renderBilling);
+
+    function renderReports() {
+      const container = document.getElementById('report-content');
+      if(!container) return;
+
+      const totalRevenue = db.visits.reduce((acc, v) => acc + v.fee, 0) + db.labs.reduce((acc, l) => acc + l.cost, 0);
+      
+      container.innerHTML = `
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 24px;">
+          <div style="background: #f7faf9; padding: 16px; border-radius: 12px; border: 1px solid var(--border-line);">
+            <div style="font-size: 12px; color: var(--muted); font-weight: 700;">TOTAL PATIENTS</div>
+            <div style="font-size: 24px; font-weight: 800; color: var(--ink);">${db.patients.length}</div>
+          </div>
+          <div style="background: #f7faf9; padding: 16px; border-radius: 12px; border: 1px solid var(--border-line);">
+            <div style="font-size: 12px; color: var(--muted); font-weight: 700;">TOTAL CONSULTATIONS</div>
+            <div style="font-size: 24px; font-weight: 800; color: var(--ink);">${db.visits.length}</div>
+          </div>
+          <div style="background: #f7faf9; padding: 16px; border-radius: 12px; border: 1px solid var(--border-line);">
+            <div style="font-size: 12px; color: var(--muted); font-weight: 700;">TOTAL LAB TESTS</div>
+            <div style="font-size: 24px; font-weight: 800; color: var(--ink);">${db.labs.length}</div>
+          </div>
+          <div style="background: #f7faf9; padding: 16px; border-radius: 12px; border: 1px solid var(--border-line);">
+            <div style="font-size: 12px; color: var(--muted); font-weight: 700;">TOTAL REVENUE</div>
+            <div style="font-size: 24px; font-weight: 800; color: var(--teal);">Tk ${totalRevenue.toLocaleString()}</div>
+          </div>
+        </div>
+        <h3>Active Doctors Roster</h3>
+        <ul style="margin: 10px 0 20px 20px;">
+          ${db.doctors.map(d => `<li><strong>${d.name}</strong> - Specialty: ${d.specialty}</li>`).join('')}
+        </ul>
+      `;
+    }
+
+    // AI Assistant Chat Handler (Connected to Backend Proxy)
+    document.getElementById('chat-form')?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const inputEl = document.getElementById('chat-input');
+      const messagesEl = document.getElementById('chat-messages');
+      const q = inputEl.value.trim();
+      if(!q) return;
+
+      messagesEl.innerHTML += `<div class="bubble user">${escapeHTML(q)}</div>`;
+      inputEl.value = '';
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+
+      const loadingId = 'loading-' + Date.now();
+      messagesEl.innerHTML += `<div class="bubble assistant" id="${loadingId}">Analyzing hospital records...</div>`;
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+
+      try {
+        const response = await fetch('/ask', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            question: q,
+            data: {
+              totalPatients: db.patients.length,
+              patients: db.patients,
+              visits: db.visits,
+              labs: db.labs,
+              doctors: db.doctors
+            }
+          })
+        });
+
+        const result = await response.json();
+        const loadingBubble = document.getElementById(loadingId);
+        
+        if (response.ok) {
+          loadingBubble.textContent = result.answer;
+        } else {
+          loadingBubble.textContent = 'Error: ' + (result.error || 'Failed to get an answer from ChatterMate.');
+        }
+      } catch (err) {
+        const loadingBubble = document.getElementById(loadingId);
+        loadingBubble.textContent = 'Network error: Could not reach the server proxy.';
+      }
+
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+    });
+
+    document.querySelectorAll('.quick button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const promptText = btn.getAttribute('data-prompt');
+        document.getElementById('chat-input').value = promptText;
+        document.getElementById('chat-form').dispatchEvent(new Event('submit'));
+      });
+    });
+
+    function escapeHTML(str) {
+      return str.replace(/[&<>'"]/g, 
+        tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
+      );
+    }
+
+  // Settings actions & Supervisor Key Configuration
+    document.getElementById('key-form')?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const apiKey = document.getElementById('setting-api-key').value.trim();
+      const statusEl = document.getElementById('key-status');
+
+      try {
+        const response = await fetch('/api/settings/key', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ apiKey })
+        });
+
+        const result = await response.json();
+        if (response.ok && result.success) {
+          statusEl.style.color = 'var(--teal)';
+          statusEl.textContent = 'API key updated successfully for this session!';
+          document.getElementById('setting-api-key').value = '';
+        } else {
+          statusEl.style.color = '#a9433b';
+          statusEl.textContent = 'Error: ' + (result.error || 'Failed to update key.');
+        }
+      } catch (err) {
+        statusEl.style.color = '#a9433b';
+        statusEl.textContent = 'Network error: Could not reach backend server.';
+      }
+    });
+
+    document.getElementById('test-key-btn')?.addEventListener('click', async () => {
+      const statusEl = document.getElementById('key-status');
+      statusEl.style.color = 'var(--ink)';
+      statusEl.textContent = 'Testing connection...';
+
+      try {
+        const response = await fetch('/api/settings/test');
+        const result = await response.json();
+
+        if (response.ok && result.success) {
+          statusEl.style.color = 'var(--teal)';
+          statusEl.textContent = 'Connection successful! ChatterMate API key is valid and active.';
+        } else {
+          statusEl.style.color = '#a9433b';
+          statusEl.textContent = 'Test failed: ' + (result.error || 'Invalid API key or network issue.');
+        }
+      } catch (err) {
+        statusEl.style.color = '#a9433b';
+        statusEl.textContent = 'Network error: Could not connect to server test endpoint.';
+      }
+    });
+
+    document.getElementById('export-data')?.addEventListener('click', () => {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db, null, 2));
+      const dlAnchor = document.createElement('a');
+      dlAnchor.setAttribute("href", dataStr);
+      dlAnchor.setAttribute("download", "hania_health_hub_backup.json");
+      document.body.appendChild(dlAnchor);
+      dlAnchor.click();
+      dlAnchor.remove();
+      document.getElementById('settings-status').textContent = 'Backup exported successfully!';
+    });
+
+    document.getElementById('reset-data')?.addEventListener('click', () => {
+      if(confirm('Are you sure you want to clear all patient records and database entries? This action cannot be undone.')) {
+        localStorage.removeItem(STORAGE_KEY);
+        db.patients = [];
+        db.visits = [];
+        db.labs = [];
+        initApp();
+        document.getElementById('settings-status').textContent = 'All data has been cleared.';
+      }
+    });
+    // Sample Data Loader (50 Patients)
+    document.getElementById('load-sample')?.addEventListener('click', () => {
+      if(db.patients.length > 0 && !confirm('Load sample dataset? This will append sample patients and visits.')) return;
+      
+      const sampleFirstNames = ['Amina', 'Rahim', 'Fatima', 'Karim', 'Nasreen', 'Tariq', 'Sadia', 'Imran', 'Zohra', 'Bilal'];
+      const sampleLastNames = ['Begum', 'Hossain', 'Akter', 'Khan', 'Chowdhury', 'Uddin', 'Sultana', 'Ahmed', 'Rahman', 'Ali'];
+      const addresses = ['Dhanmondi, Dhaka', 'Gulshan, Dhaka', 'Uttara, Dhaka', 'Mirpur, Dhaka', 'Banani, Dhaka', 'Motijheel, Dhaka'];
+
+      for(let i = 1; i <= 50; i++) {
+        const fName = sampleFirstNames[Math.floor(Math.random() * sampleFirstNames.length)];
+        const lName = sampleLastNames[Math.floor(Math.random() * sampleLastNames.length)];
+        const id = 'PID-' + String(db.patients.length + 1).padStart(4, '0');
+        const patient = {
+          id: id,
+          regDate: new Date(Date.now() - Math.floor(Math.random() * 30) * 86400000).toISOString().split('T')[0],
+          name: `${fName} ${lName}`,
+          age: Math.floor(18 + Math.random() * 60),
+          sex: Math.random() > 0.5 ? 'Female' : 'Male',
+          phone: '017' + Math.floor(10000000 + Math.random() * 90000000),
+          address: addresses[Math.floor(Math.random() * addresses.length)]
+        };
+        db.patients.push(patient);
+
+        if(Math.random() > 0.3) {
+          const doc = db.doctors[Math.floor(Math.random() * db.doctors.length)];
+          db.visits.push({
+            date: patient.regDate,
+            patientId: patient.id,
+            doctor: doc.name,
+            fee: 800 + Math.floor(Math.random() * 5) * 200,
+            problem: ['Fever & Cough', 'Hypertension', 'Gastric Pain', 'Joint Ache', 'Routine Checkup'][Math.floor(Math.random() * 5)],
+            medicines: 'Paracetamol 500mg, Antacid'
+          });
+        }
+      }
+
+      saveDB();
+      initApp();
+      alert('50 sample patient records loaded successfully!');
+    });
+
+    // Run on load
+    window.addEventListener('DOMContentLoaded', initApp);
+  </script>
+  </body>
+  </html>
